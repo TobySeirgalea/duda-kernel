@@ -35,7 +35,7 @@ vaddr_t mmu_init_kernel_task_dir(paddr_t phy_start, vaddr_t code_virt) {
     mmu_map_page(task_dir, i, i, MMU_W |MMU_P);
   }
   /*Paginas codigo tarea*/
-  mmu_map_page(task_dir, code_virt + PAGE_SIZE , phy_start + PAGE_SIZE, MMU_P);  
+  mmu_map_page(task_dir, code_virt , phy_start + PAGE_SIZE, MMU_P);  
   /*Pagina stack*/ 
   mmu_map_page(task_dir, KERNEL_TASK_STACK_BASE - PAGE_SIZE, mmu_next_free_kernel_page(), MMU_W | MMU_P);
   return (vaddr_t)task_dir;
