@@ -35,7 +35,7 @@ vaddr_t mmu_init_kernel_task_dir(paddr_t phy_start, vaddr_t code_virt) {
     mmu_map_page(task_dir, i, i, MMU_W |MMU_P);
   }
   /*Paginas codigo tarea*/
-  mmu_map_page(task_dir, code_virt , phy_start + PAGE_SIZE, MMU_P);  
+  mmu_map_page(task_dir, code_virt + PAGE_SIZE , phy_start + PAGE_SIZE, MMU_P);  
   /*Pagina stack*/ 
   mmu_map_page(task_dir, KERNEL_TASK_STACK_BASE - PAGE_SIZE, mmu_next_free_kernel_page(), MMU_W | MMU_P);
   return (vaddr_t)task_dir;
@@ -51,7 +51,15 @@ static int8_t create_kernel_task(tipo_e tipo) {
     kassert(gdt_id < GDT_COUNT, "No hay entradas disponibles en la GDT");
 
     int8_t task_id = sched_add_task(gdt_id << 3);
+    selector_tarea_nueva = (gdt_id << 3);
     tss_tasks[task_id] = tss_create_kernel_task(/*Dirección física donde la quieras ubicar, de 0x1E000 en adelante hasta 0x24000 que tenemos la pila del kernel*/);
     gdt[gdt_id] = tss_gdt_entry_for_task(&tss_tasks[task_id]);
+
     return task_id;
 }
+
+```
+Teniendo en ```sched.c``` una variable global que guarde ese selector y así siemre que se quiera llamar a esta tarea se lo obtiene y se puede hacer el jmp far.
+```C
+uint16_t selector_tarea_nueva;
+```
